@@ -5,6 +5,10 @@
     <h2>
         <%= campground.location %>
     </h2>
+    <img class="img-thumbnail" src="<%= campground.image %>" alt="">
+    <h5>
+        <%= campground.description %>
+    </h5>
     <p>
     <form action="/campgrounds/<%= campground._id %>?_method=DELETE " method="POST">
         <button type="submit">Delete Campground</button>
