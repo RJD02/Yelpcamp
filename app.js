@@ -99,6 +99,7 @@ app.get(
 
 app.put(
   "/campgrounds/:id",
+  validateCampground,
   wrapAsync(async (req, res) => {
     const { id } = req.params;
     const campground = await Campground.findByIdAndUpdate(id, {
