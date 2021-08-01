@@ -5,6 +5,7 @@ const methodOverride = require("method-override");
 const mongoose = require("mongoose");
 const ejsMate = require("ejs-mate");
 const morgan = require("morgan");
+const Joi = require("joi");
 const path = require("path");
 const Campground = require("./models/campground");
 const ExpressError = require("./Utils/ExpressJS");
@@ -100,9 +101,9 @@ app.all("*", (req, res, next) => {
 });
 
 app.use((err, req, res, next) => {
-  const { status = 500, message = "Something went wrong" } = err;
-  console.log("Ohh Boy!");
-  res.status(status).send(`Ohh no... ${message}`);
+  const { status = 500 } = err;
+  if (!err.message) err.message = "Something went wrong";
+  res.status(status).render("error", { err });
 });
 
 app.listen(port, () => {
