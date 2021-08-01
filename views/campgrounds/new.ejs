@@ -2,30 +2,45 @@
     <div class="row">
         <h1 class="text-center">New Campground</h1>
         <div class="col-6 offset-3">
-            <form action="/campgrounds" method="POST">
+            <form action="/campgrounds" method="POST" novalidate class="validated-form">
                 <div class="md-3">
                     <label class="form-label" for="title">Title</label>
-                    <input class="form-control" type="text" name="campground[title]" id="title">
+                    <input class="form-control" type="text" name="campground[title]" id="title" required>
+                    <footer class="valid-feedback">
+                        Looks Good
+                    </footer>
                 </div>
                 <div class="mb-3">
                     <label class="form-label" for="location">Location</label>
-                    <input class="form-control" type="text" name="campground[location]" id="location">
+                    <input class="form-control" type="text" name="campground[location]" id="location" required>
+                    <footer class="valid-feedback">
+                        Sure, could locate it!
+                    </footer>
                 </div>
                 <div class="mb-3">
                     <label class="form-label" for="image">Image URL</label>
-                    <input class="form-control" type="text" name="campground[image]" id="image">
+                    <input class="form-control" type="text" name="campground[image]" id="image" required>
+                    <footer class="valid-feedback">
+                        That was a fantastic image
+                    </footer>
                 </div>
                 <div class="mb-3">
                     <label for="price" class="form-label">Campground Price</label>
                     <div class="input-group">
                         <span class="input-group-text" id="price-label">$</span>
                         <input type="text" class="form-control" name="campground[price] " id="price" placeholder="0.00"
-                            aria-label="price" aria-describedby="price-label">
+                            aria-label="price" aria-describedby="price-label" required>
+                        <footer class="valid-feedback">
+                            Great Description
+                        </footer>
                     </div>
                 </div>
                 <div class="mb-3">
                     <label for="description" class="form-label">Description</label>
-                    <textarea name="campground[description]" id="description" class="form-control"></textarea>
+                    <textarea name="campground[description]" id="description" class="form-control" required></textarea>
+                    <footer class="valid-feedback">
+                        Looks Good
+                    </footer>
                 </div>
                 <div class="mb-3">
                     <button class="btn btn-success">Add Campground</button>
