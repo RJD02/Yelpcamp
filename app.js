@@ -10,6 +10,7 @@ const path = require("path");
 const Campground = require("./models/campground");
 const ExpressError = require("./Utils/ExpressJS");
 const wrapAsync = require("./Utils/AsyncWrapper");
+const { resolveInclude } = require("ejs");
 let port = 3000;
 
 app.set("views", path.join(__dirname + "/views"));
@@ -19,6 +20,26 @@ app.use(morgan("dev"));
 app.use(express.urlencoded({ extended: true }));
 app.use(methodOverride("_method"));
 app.use(express.urlencoded({ extended: true }));
+
+const validateCampground = (req, res, next) => {
+  const campgroundSchema = Joi.object({
+    campground: Joi.object({
+      title: Joi.string().required(),
+      price: Joi.number().required().min(0),
+      image: Joi.string().required(),
+      description: Joi.string().required(),
+      location: Joi.string().required(),
+    }).required(),
+  });
+  const { error } = campgroundSchema.validate(req.body);
+  if (error.details) {
+    const message = error.details.map((el) => el.message).join(",");
+    throw new ExpressError(message, 400);
+  } else {
+    next();
+  }
+};
+
 mongoose.connect("mongodb://localhost:27017/yelp-camp", {
   useNewUrlParser: true,
   useCreateIndex: true,
@@ -49,10 +70,11 @@ app.get("/campgrounds/new", (req, res) => {
 
 app.post(
   "/campgrounds",
+  validateCampground,
   wrapAsync(async (req, res, next) => {
     // * wrapAsync function will catch the error we will throw error
     // ! So "throwing error in here" works
-    if (!req.body.campground) throw new ExpressError("Insufficient data", 400);
+    // if (!req.body.campground) throw new ExpressError("Insufficient data", 400);
     const campground = new Campground(req.body.campground);
     await campground.save();
     res.redirect(`/campgrounds/${campground._id}`);
