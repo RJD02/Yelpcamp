@@ -10,6 +10,7 @@ const path = require("path");
 const Campground = require("./models/campground");
 const ExpressError = require("./Utils/ExpressJS");
 const wrapAsync = require("./Utils/AsyncWrapper");
+const campgroundSchema = require("./schemas");
 const { resolveInclude } = require("ejs");
 let port = 3000;
 
@@ -22,15 +23,6 @@ app.use(methodOverride("_method"));
 app.use(express.urlencoded({ extended: true }));
 
 const validateCampground = (req, res, next) => {
-  const campgroundSchema = Joi.object({
-    campground: Joi.object({
-      title: Joi.string().required(),
-      price: Joi.number().required().min(0),
-      image: Joi.string().required(),
-      description: Joi.string().required(),
-      location: Joi.string().required(),
-    }).required(),
-  });
   const { error } = campgroundSchema.validate(req.body);
   if (error.details) {
     const message = error.details.map((el) => el.message).join(",");
