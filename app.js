@@ -4,13 +4,16 @@ const _ = require("lodash");
 const methodOverride = require("method-override");
 const mongoose = require("mongoose");
 const ejsMate = require("ejs-mate");
+const morgan = require("morgan");
 const path = require("path");
 const Campground = require("./models/campground");
+const ExpressError = require("./Utils/ExpressJS");
 let port = 3000;
 
 app.set("views", path.join(__dirname + "/views"));
 app.engine("ejs", ejsMate);
 app.set("view engine", "ejs");
+app.use(morgan("dev"));
 app.use(express.urlencoded({ extended: true }));
 app.use(methodOverride("_method"));
 app.use(express.urlencoded({ extended: true }));
@@ -39,10 +42,14 @@ app.get("/campgrounds/new", (req, res) => {
   res.render("campgrounds/new");
 });
 
-app.post("/campgrounds", async (req, res) => {
-  const campground = new Campground(req.body.campground);
-  await campground.save();
-  res.redirect(`/campgrounds/${campground._id}`);
+app.post("/campgrounds", async (req, res, next) => {
+  try {
+    const campground = new Campground(req.body.campground);
+    await campground.save();
+    res.redirect(`/campgrounds/${campground._id}`);
+  } catch (e) {
+    next(e);
+  }
 });
 
 app.get("/campgrounds/:id/edit", async (req, res) => {
@@ -67,6 +74,11 @@ app.delete("/campgrounds/:id", async (req, res) => {
   const { id } = req.params;
   await Campground.findByIdAndDelete(id);
   res.redirect("/campgrounds");
+});
+
+app.use((err, req, res, next) => {
+  console.log("Ohh Boy!");
+  res.send("Something went wrong");
 });
 
 app.listen(port, () => {
