@@ -5,12 +5,11 @@ const methodOverride = require("method-override");
 const mongoose = require("mongoose");
 const ejsMate = require("ejs-mate");
 const morgan = require("morgan");
-const Joi = require("joi");
 const path = require("path");
 const Campground = require("./models/campground");
 const ExpressError = require("./Utils/ExpressJS");
 const wrapAsync = require("./Utils/AsyncWrapper");
-const campgroundSchema = require("./schemas");
+const campgroundSchema = require("./schemas").campgroundSchema;
 const { resolveInclude } = require("ejs");
 let port = 3000;
 
@@ -24,7 +23,7 @@ app.use(express.urlencoded({ extended: true }));
 
 const validateCampground = (req, res, next) => {
   const { error } = campgroundSchema.validate(req.body);
-  if (error.details) {
+  if (error) {
     const message = error.details.map((el) => el.message).join(",");
     throw new ExpressError(message, 400);
   } else {
