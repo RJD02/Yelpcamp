@@ -2,7 +2,7 @@ const express = require("express");
 const Campground = require("../models/campground");
 const { campgroundSchema } = require("../schemas");
 const wrapAsync = require("../Utils/AsyncWrapper");
-const router = express.Router();
+const router = express.Router({ mergeParams: true });
 
 const validateCampground = (req, res, next) => {
   const { error } = campgroundSchema.validate(req.body);
@@ -35,6 +35,7 @@ router.post(
     // if (!req.body.campground) throw new ExpressError("Insufficient data", 400);
     const campground = new Campground(req.body.campground);
     await campground.save();
+    req.flash("success", "Successfully made a new campground");
     res.redirect(`/campgrounds/${campground._id}`);
   })
 );
@@ -65,6 +66,7 @@ router.put(
     const campground = await Campground.findByIdAndUpdate(id, {
       ...req.body.campground,
     });
+    req.flash("success", "Successfully updated the campground");
     res.redirect(`/campgrounds/${campground._id}`);
   })
 );
@@ -74,6 +76,7 @@ router.delete(
   wrapAsync(async (req, res) => {
     const { id } = req.params;
     await Campground.findByIdAndDelete(id);
+    req.flash("success", "Successfully deleted the campground");
     res.redirect("/campgrounds");
   })
 );

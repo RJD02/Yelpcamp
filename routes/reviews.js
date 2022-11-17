@@ -1,9 +1,10 @@
 const express = require("express");
-const router = express.Router();
+const router = express.Router({ mergeParams: true });
 const ExpressError = require("../Utils/ExpressJS");
 const Campground = require("../models/campground");
 const wrapAsync = require("../Utils/AsyncWrapper");
 const Review = require("../models/review");
+const { reviewSchema } = require("../schemas");
 
 const validateReview = (req, res, next) => {
   const { error } = reviewSchema.validate(req.body);
@@ -25,6 +26,7 @@ router.post(
     campground.reviews.push(review);
     await review.save();
     await campground.save();
+    req.flash("success", "Created new review");
     res.redirect(`/campgrounds/${campground._id}`);
   })
 );
@@ -36,6 +38,7 @@ router.delete(
     const reviewId = req.params.reviewId;
     Campground.findByIdAndUpdate(id, { $pull: { reviews: reviewId } });
     await Review.findByIdAndDelete(reviewId);
+    req.flash("success", "Successfully deleted review");
     res.redirect(`/campgrounds/${id}`);
   })
 );
