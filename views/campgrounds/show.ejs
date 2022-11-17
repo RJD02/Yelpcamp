@@ -1,39 +1,88 @@
 <% layout('layouts/boilerplate.ejs') %>
 
-    <div class="row">
-        <div class="col-6 offset-3">
-            <div class="card mb-3">
-                <img class="card-img-top" src="<%= campground.image %>" alt="...">
-                <div class="card-body">
-                    <h5 class="card-title">
-                        <%= campground.title %>
-                    </h5>
-                    <p class="card-text">
-                        <%= campground.description %>
-                    </p>
-                </div>
-                <ul class="list-group list-group-flush">
-                    <li class="list-group-item text-muted">
-                        <%= campground.location %>
-                    </li>
-                    <li class="list-group-item">
-                        $<%= campground.price %>/night
-                    </li>
-
-                </ul>
-                <div class="card-body">
-                    <a href="/campgrounds/<%= campground._id %>/edit" class="card-link btn btn-info">Edit
-                        Campground</a>
-                    <!-- <a href="/campgrounds" class="card-link btn btn-danger">Delete Campground</a> -->
-                    <form class="d-inline mx-5" action="/campgrounds/<%= campground._id %>?_method=DELETE "
-                        method="POST">
-                        <button type="submit" class="card-link btn btn-danger">Delete Campground</button>
-                    </form>
-                </div>
-            </div>
-        </div>
+<div class="row">
+  <div class="col-6">
+    <div class="card mb-3">
+      <img class="card-img-top" src="<%= campground.image %>" alt="..." />
+      <div class="card-body">
+        <h5 class="card-title"><%= campground.title %></h5>
+        <p class="card-text"><%= campground.description %></p>
+      </div>
+      <ul class="list-group list-group-flush">
+        <li class="list-group-item text-muted"><%= campground.location %></li>
+        <li class="list-group-item">$<%= campground.price %>/night</li>
+      </ul>
+      <div class="card-body">
+        <a
+          href="/campgrounds/<%= campground._id %>/edit"
+          class="card-link btn btn-info"
+          >Edit Campground</a
+        >
+        <!-- <a href="/campgrounds" class="card-link btn btn-danger">Delete Campground</a> -->
+        <form
+          class="d-inline mx-5"
+          action="/campgrounds/<%= campground._id %>?_method=DELETE "
+          method="POST"
+        >
+          <button type="submit" class="card-link btn btn-danger">
+            Delete Campground
+          </button>
+        </form>
+      </div>
+      <div class="card-footer text-muted">2 days ago</div>
     </div>
+  </div>
+  <div class="col-6">
+    <h2>Leave a Review</h2>
+    <form
+      novalidate
+      action="/campgrounds/<%= campground._id %>/reviews"
+      method="post"
+      class="mb-3 validated-form"
+    >
+      <div class="mb-3">
+        <label for="rating" class="form-label">Rating</label>
+        <input
+          type="range"
+          min="1"
+          max="5"
+          value="3"
+          name="review[rating]"
+          class="form-range"
+          id="rating"
+        />
+      </div>
+      <div class="mb-3">
+        <label class="form-label" for="body">Review</label>
+        <textarea
+          name="review[body]"
+          class="form-control"
+          id="body"
+          cols="30"
+          rows="3"
+          required
+        ></textarea>
+        <div class="valid-feedback">Looks good!</div>
+      </div>
+      <button type="submit" class="btn btn-success">Submit</button>
+    </form>
+    <% for(let review of campground.reviews) { %>
+    <div class="card mb-3">
+      <div class="card-body">
+        <h5 class="card-title">Rating: <%= review.rating %></h5>
+        <p class="card-text">Review: <%= review.body %></p>
+        <form
+          action="/campgrounds/<%= campground._id %>/reviews/<%= review._id %>?_method=DELETE"
+          method="post"
+        >
+          <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+        </form>
+      </div>
+    </div>
+    <% } %>
+  </div>
+</div>
 
-    <footer>
-        <p><a href="/campgrounds">All Campgrounds</a></p>
-    </footer>
+<footer>
+  <p><a href="/campgrounds">All Campgrounds</a></p>
+</footer>

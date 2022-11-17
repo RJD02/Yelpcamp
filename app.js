@@ -7,10 +7,13 @@ const ejsMate = require("ejs-mate");
 const morgan = require("morgan");
 const path = require("path");
 const Campground = require("./models/campground");
+const Review = require("./models/review");
 const ExpressError = require("./Utils/ExpressJS");
 const wrapAsync = require("./Utils/AsyncWrapper");
-const campgroundSchema = require("./schemas").campgroundSchema;
-const { resolveInclude } = require("ejs");
+const { reviewSchema } = require("./schemas");
+const campgroundsRouter = require("./routes/campground");
+const reviewsRouter = require("./routes/reviews");
+
 let port = 3000;
 
 app.set("views", path.join(__dirname + "/views"));
@@ -20,16 +23,6 @@ app.use(morgan("dev"));
 app.use(express.urlencoded({ extended: true }));
 app.use(methodOverride("_method"));
 app.use(express.urlencoded({ extended: true }));
-
-const validateCampground = (req, res, next) => {
-  const { error } = campgroundSchema.validate(req.body);
-  if (error) {
-    const message = error.details.map((el) => el.message).join(",");
-    throw new ExpressError(message, 400);
-  } else {
-    next();
-  }
-};
 
 mongoose.connect("mongodb://localhost:27017/yelp-camp", {
   useNewUrlParser: true,
@@ -43,75 +36,16 @@ db.once("open", () => {
   console.log("Database connected");
 });
 
+app.use("/campgrounds", campgroundsRouter);
+app.use("/campgrounds/:id/reviews", reviewsRouter);
+
 app.get("/", (req, res) => {
   res.render("home");
 });
 
-app.get(
-  "/campgrounds",
-  wrapAsync(async (req, res) => {
-    const campgrounds = await Campground.find({});
-    res.render("campgrounds/index", { campgrounds });
-  })
-);
-
-app.get("/campgrounds/new", (req, res) => {
-  res.render("campgrounds/new");
-});
-
-app.post(
-  "/campgrounds",
-  validateCampground,
-  wrapAsync(async (req, res, next) => {
-    // * wrapAsync function will catch the error we will throw error
-    // ! So "throwing error in here" works
-    // if (!req.body.campground) throw new ExpressError("Insufficient data", 400);
-    const campground = new Campground(req.body.campground);
-    await campground.save();
-    res.redirect(`/campgrounds/${campground._id}`);
-  })
-);
-
-app.get(
-  "/campgrounds/:id/edit",
-  wrapAsync(async (req, res) => {
-    const campground = await Campground.findById(req.params.id);
-    res.render("campgrounds/edit", { campground });
-  })
-);
-
-app.get(
-  "/campgrounds/:id",
-  wrapAsync(async (req, res) => {
-    const campground = await Campground.findById(req.params.id);
-    res.render("campgrounds/show", { campground });
-  })
-);
-
-app.put(
-  "/campgrounds/:id",
-  validateCampground,
-  wrapAsync(async (req, res) => {
-    const { id } = req.params;
-    const campground = await Campground.findByIdAndUpdate(id, {
-      ...req.body.campground,
-    });
-    res.redirect(`/campgrounds/${campground._id}`);
-  })
-);
-
-app.delete(
-  "/campgrounds/:id",
-  wrapAsync(async (req, res) => {
-    const { id } = req.params;
-    await Campground.findByIdAndDelete(id);
-    res.redirect("/campgrounds");
-  })
-);
-
 app.all("*", (req, res, next) => {
   next(new ExpressError("Page not found", 404));
-  res.send("404!!!");
+  // res.send("404!!!");
 });
 
 app.use((err, req, res, next) => {
@@ -123,3 +57,6 @@ app.use((err, req, res, next) => {
 app.listen(port, () => {
   console.log(`http://localhost:3000`);
 });
+
+// POST /campgrounds/:id/reviews
+// res.cookie(key, val);
